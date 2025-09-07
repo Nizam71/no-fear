@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student & Staff Portal</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #f4f4f4;
+            --dark-color: #333;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--secondary-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #3f97c0;
+        }
+
+        .container {
+            background: #fff;
+            padding: 2em;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .top-right-buttons {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .top-right-buttons button {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .top-right-buttons button:hover {
+            background-color: #3a7bd5;
+        }
+
+        h2, h3 {
+            color: var(--dark-color);
+            margin-bottom: 1em;
+        }
+
+        h2 {
+            color: rgb(119, 0, 255);
+        }
+
+        .role-selection button {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            margin: 0 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .role-selection button:hover {
+            background-color: #3a7bd5;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        label {
+            align-self: flex-start;
+            font-weight: bold;
+            color: var(--dark-color);
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            resize: none;
+        }
+
+        form button, #postQuestionBtn {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        form button:hover, #postQuestionBtn:hover {
+            background-color: #3a7bd5;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .message {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .success {
+            color: var(--success-color);
+        }
+
+        .error {
+            color: var(--error-color);
+        }
+
+        .question {
+            background: #c24e4e;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 6px;
+            color: white;
+            text-align: left;
+        }
+        
+        .staff-section {
+            border-top: 2px solid var(--primary-color);
+            padding-top: 15px;
+            margin-top: 20px;
+        }
+        
+        .staff-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--dark-color);
+            text-align: left;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-right-buttons">
+            <button id="logout-top-btn" class="hidden">Logout</button>
+        </div>
+        <div id="portal-entry">
+            <h2>Welcome to  the portal</h2>
+            <div class="role-selection">
+                <button id="staff-btn">Staff</button>
+                <button id="student-btn">Student</button>
+            </div>
+            <form id="login-form" class="hidden">
+                <h3>Login</h3>
+                <label for="email">Email ID:</label>
+                <input type="email" id="email" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" required>
+                <button type="submit">Log In</button>
+                <p id="login-message" class="message"></p>
+            </form>
+            <form id="staff-registration-form" class="hidden">
+                <h3>Staff Registration</h3>
+                <label for="staff-name">Your Name:</label>
+                <input type="text" id="staff-name" required>
+                <label for="staff-subject">Subject Taught:</label>
+                <input type="text" id="staff-subject" required>
+                <label for="staff-email">Email ID:</label>
+                <input type="email" id="staff-email" required>
+                <label for="staff-password">Password:</label>
+                <input type="password" id="staff-password" required>
+                <button type="submit">Register</button>
+                <p id="registration-message" class="message"></p>
+            </form>
+        </div>
+        <div id="qa-platform" class="hidden">
+            <h2>Ask Your Question 🙋‍♂️ My Dear Be Cool</h2>
+            <textarea id="questionInput" placeholder="Type your question..."></textarea>
+            <button id="postQuestionBtn">Post Question</button>
+            <div id="questionsList"></div>
+        </div>
+    </div>
+    <script>
+        const staffBtn = document.getElementById('staff-btn');
+        const studentBtn = document.getElementById('student-btn');
+        const loginForm = document.getElementById('login-form');
+        const staffRegistrationForm = document.getElementById('staff-registration-form');
+        const loginMessage = document.getElementById('login-message');
+        const registrationMessage = document.getElementById('registration-message');
+        const portalEntry = document.getElementById('portal-entry');
+        const qaPlatform = document.getElementById('qa-platform');
+        const postQuestionBtn = document.getElementById('postQuestionBtn');
+        const questionInput = document.getElementById("questionInput");
+        const questionsList = document.getElementById("questionsList");
+        const logoutTopBtn = document.getElementById('logout-top-btn');
+
+        const allowedStudents = new Set([
+            'student1@example.com', 'student2@example.com', 'student3@example.com'
+        ]);
+        
+        const staffDb = {
+            'staff1@school.edu': { password: 'staffpass123', name: 'Dr. Smith' },
+            'staff2@school.edu': { password: 'staffpass456', name: 'Ms. Jones' }
+        };
+
+        const questionsByStaff = {};
+        
+        let userRole = '';
+        let loggedInEmail = '';
+
+        function showInitialState() {
+            portalEntry.classList.remove('hidden');
+            qaPlatform.classList.add('hidden');
+            loginForm.classList.add('hidden');
+            staffRegistrationForm.classList.add('hidden');
+            logoutTopBtn.classList.add('hidden');
+        }
+
+        function showLoggedInState(role) {
+            portalEntry.classList.add('hidden');
+            logoutTopBtn.classList.remove('hidden');
+            if (role === 'student') {
+                qaPlatform.classList.remove('hidden');
+                displayQuestions();
+            }
+        }
+        
+        function displayQuestions() {
+            questionsList.innerHTML = '';
+            for (const staffEmail in staffDb) {
+                const staffData = staffDb[staffEmail];
+                const staffQuestions = questionsByStaff[staffEmail] || [];
+                
+                const staffSection = document.createElement('div');
+                staffSection.className = 'staff-section';
+                
+                const staffNameHeader = document.createElement('h3');
+                staffNameHeader.className = 'staff-name';
+                staffNameHeader.textContent = `${staffData.name}`;
+                staffSection.appendChild(staffNameHeader);
+                
+                staffQuestions.forEach(questionText => {
+                    const div = document.createElement('div');
+                    div.className = 'question';
+                    div.textContent = questionText;
+                    staffSection.appendChild(div);
+                });
+                
+                questionsList.appendChild(staffSection);
+            }
+        }
+
+        // Event listeners for role selection buttons
+        staffBtn.addEventListener('click', () => {
+            loginForm.classList.add('hidden');
+            staffRegistrationForm.classList.remove('hidden');
+            userRole = 'staff';
+            loginMessage.textContent = '';
+        });
+        
+        studentBtn.addEventListener('click', () => {
+            staffRegistrationForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+            userRole = 'student';
+            registrationMessage.textContent = '';
+        });
+        
+        // Event listener for Login Form submission
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            let isLoggedIn = false;
+
+            if (userRole === 'student') {
+                if (allowedStudents.has(email) && password === 'studentpass') {
+                    loginMessage.textContent = 'Login successful!';
+                    loginMessage.className = 'message success';
+                    isLoggedIn = true;
+                    loggedInEmail = email;
+                } else {
+                    loginMessage.textContent = 'Incorrect credentials or access denied.';
+                    loginMessage.className = 'message error';
+                }
+            } else if (userRole === 'staff') {
+                if (staffDb[email] && staffDb[email].password === password) {
+                    loginMessage.textContent = 'Login successful!';
+                    loginMessage.className = 'message success';
+                    isLoggedIn = true;
+                    loggedInEmail = email;
+                } else {
+                    loginMessage.textContent = 'Invalid staff credentials.';
+                    loginMessage.className = 'message error';
+                }
+            }
+
+            if (isLoggedIn) {
+                showLoggedInState(userRole);
+            }
+        });
+        
+        // Event listener for Staff Registration Form submission
+        staffRegistrationForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('staff-name').value.trim();
+            const email = document.getElementById('staff-email').value.trim();
+            const password = document.getElementById('staff-password').value.trim();
+            staffDb[email] = { password, name };
+            registrationMessage.textContent = 'Registration successful! You can now log in.';
+            registrationMessage.className = 'message success';
+            staffRegistrationForm.reset();
+        });
+        
+        // Q&A platform functionality
+        postQuestionBtn.addEventListener('click', () => {
+            const questionText = questionInput.value.trim();
+            if (!questionText) return;
+
+            // Simple logic to post to a specific staff, for example, Dr. Smith
+            const staffEmailForQuestion = 'staff1@school.edu';
+
+            if (!questionsByStaff[staffEmailForQuestion]) {
+                questionsByStaff[staffEmailForQuestion] = [];
+            }
+            questionsByStaff[staffEmailForQuestion].push(questionText);
+            
+            questionInput.value = "";
+            displayQuestions();
+        });
+        
+        logoutTopBtn.addEventListener('click', () => {
+            userRole = '';
+            loggedInEmail = '';
+            showInitialState();
+            loginMessage.textContent = '';
+            registrationMessage.textContent = '';
+        });
+
+        // Initial render
+        showInitialState();
+    </script>
+</body>
+</html>
